@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0d0f12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>007 First Light – Collectibles</title>
+<style>
+  :root {
+    --bg: #0d0f12; --panel: #161a20; --panel2: #1d222a; --line: #2a313b;
+    --text: #e8e6e1; --muted: #9aa3ad; --gold: #dabc7d; --ok: #6fbf73;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+  header { position: sticky; top: 0; z-index: 10; background: rgba(13,15,18,.96); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding: calc(10px + env(safe-area-inset-top)) 16px 10px; }
+  .top { display: flex; align-items: center; gap: 10px; }
+  h1 { font-size: 17px; margin: 0; color: var(--gold); letter-spacing: .5px; flex: 1; }
+  h1 small { color: var(--muted); font-weight: 400; }
+  .count { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .bar { height: 4px; background: var(--line); border-radius: 2px; margin: 8px 0; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--gold); transition: width .3s; }
+  .controls { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 16px; padding: 5px 10px; font-size: 13px; cursor: pointer; display: inline-flex; gap: 5px; align-items: center; }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .chip.off { opacity: .4; }
+  .chip.on { border-color: var(--gold); color: var(--gold); }
+  .chip small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 16px; padding: 5px 8px; font-size: 13px; max-width: 100%; }
+  main { padding: 8px 16px 120px; max-width: 760px; margin: 0 auto; }
+  .chapter { margin-top: 18px; }
+  .chapter h2 { font-size: 15px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--gold); scroll-margin-top: 130px; cursor: pointer; }
+  .chapter h2 span.p { color: var(--muted); font-weight: 400; font-size: 13px; white-space: nowrap; }
+  .chapter.done h2 span.p { color: var(--ok); }
+  .chapter.collapsed .items { display: none; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: hidden; scroll-margin-top: 140px; }
+  .card.found { opacity: .5; }
+  .head { display: flex; gap: 12px; align-items: center; padding: 10px 12px; cursor: pointer; }
+  .check { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--muted); display: grid; place-items: center; font-size: 17px; color: transparent; }
+  .found .check { background: var(--ok); border-color: var(--ok); color: #0d0f12; }
+  .title { flex: 1; min-width: 0; }
+  .name { font-weight: 650; }
+  .found .name { text-decoration: line-through; }
+  .meta { font-size: 12.5px; color: var(--muted); }
+  .badge { font-size: 11px; padding: 2px 7px; border-radius: 10px; font-weight: 600; white-space: nowrap; border: 1px solid currentColor; }
+  .body { padding: 0 12px 12px; }
+  .obj { font-size: 13px; color: #d9a08f; margin-bottom: 4px; }
+  .note { margin: 0 0 8px; }
+  .imgs { display: flex; gap: 6px; overflow-x: auto; scroll-snap-type: x mandatory; }
+  .imgs img { height: 140px; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; background: var(--panel2); scroll-snap-align: start; cursor: zoom-in; flex: none; }
+  .card.found .body { display: none; }
+  .card.found.open .body { display: block; }
+  .empty { color: var(--muted); text-align: center; padding: 40px 0; }
+  .fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--gold); color: #111; border: 0; border-radius: 24px; padding: 12px 16px; font-weight: 700; box-shadow: 0 4px 16px rgba(0,0,0,.5); font-size: 14px; }
+  footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 30px; }
+  footer a { color: var(--gold); }
+  footer button { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 8px; padding: 6px 10px; margin: 8px 4px 0; }
+  #lb { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 50; display: none; flex-direction: column; justify-content: center; align-items: center; }
+  #lb.show { display: flex; }
+  #lb img { max-width: 100vw; max-height: 85vh; object-fit: contain; }
+  #lb .lbinfo { color: var(--muted); margin-top: 10px; font-size: 13px; }
+  #lb .nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.1); color: #fff; border: 0; font-size: 28px; width: 44px; height: 64px; border-radius: 8px; }
+  #lb .prev { left: 6px; } #lb .next { right: 6px; }
+  #lb .close { position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; background: rgba(255,255,255,.12); color: #fff; border: 0; font-size: 22px; width: 44px; height: 44px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>007 First Light <small>collectibles</small></h1>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="bar"><div id="bar"></div></div>
+  <div class="controls" id="types"></div>
+  <div class="controls" style="margin-top:6px">
+    <button class="chip" id="hide"></button>
+    <select id="jump" aria-label="Aller au chapitre"></select>
+  </div>
+</header>
+<main id="list"></main>
+<button class="fab" id="next">Prochain ↓</button>
+<div id="lb" role="dialog" aria-modal="true">
+  <button class="close" aria-label="Fermer">✕</button>
+  <button class="nav prev" aria-label="Précédente">‹</button>
+  <img alt="">
+  <button class="nav next" aria-label="Suivante">›</button>
+  <div class="lbinfo"></div>
+</div>
+<script src="data.js"></script>
+<script>
+const KEY = "007fl-collectibles-v1";
+const store = {
+  load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } },
+  save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} },
+};
+const state = Object.assign({ found: {}, hide: false, types: Object.keys(TYPES), collapsed: {} }, store.load());
+const save = () => store.save(state);
+const $ = (s) => document.querySelector(s);
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const openCards = new Set();
+
+function render() {
+  const visible = ITEMS.filter((it) => state.types.includes(it.type));
+  const total = ITEMS.length, got = ITEMS.filter((it) => state.found[it.id]).length;
+  $("#count").textContent = `${got} / ${total}`;
+  $("#bar").style.width = (got / total * 100) + "%";
+
+  $("#types").innerHTML = Object.entries(TYPES).map(([k, t]) => {
+    const all = ITEMS.filter((it) => it.type === k), f = all.filter((it) => state.found[it.id]).length;
+    return `<button class="chip ${state.types.includes(k) ? "" : "off"}" data-type="${k}"><span class="dot" style="background:${t.color}"></span>${t.short} <small>${f}/${all.length}</small></button>`;
+  }).join("");
+  $("#hide").className = "chip" + (state.hide ? " on" : "");
+  $("#hide").textContent = state.hide ? "✓ Trouvés masqués" : "Masquer les trouvés";
+
+  let html = "", jump = '<option value="">Aller au chapitre…</option>';
+  for (const ch of Object.keys(CHAPTERS).map(Number)) {
+    const all = visible.filter((it) => it.ch === ch);
+    if (!all.length) continue;
+    const f = all.filter((it) => state.found[it.id]).length;
+    const shown = state.hide ? all.filter((it) => !state.found[it.id] || openCards.has(it.id)) : all;
+    const done = f === all.length;
+    jump += `<option value="${ch}">Ch. ${ch} – ${esc(CHAPTERS[ch])} (${f}/${all.length})</option>`;
+    html += `<section class="chapter ${done ? "done" : ""} ${state.collapsed[ch] ? "collapsed" : ""}" id="ch-${ch}">
+      <h2 data-ch="${ch}">${state.collapsed[ch] ? "▸" : "▾"} Chapitre ${ch} « ${esc(CHAPTERS[ch])} » <span class="p">${done ? "✓ " : ""}${f}/${all.length}</span></h2>
+      <div class="items">${shown.length ? shown.map(card).join("") : '<div class="meta" style="padding:0 4px 4px">Tout est trouvé ✓</div>'}</div></section>`;
+  }
+  $("#list").innerHTML = (html || '<div class="empty">Aucun type sélectionné.</div>') +
+    `<footer>Infos et captures : <a href="https://www.psthc.fr/viewtopic.php?p=1039927#p1039927" target="_blank" rel="noopener">guide PSTHC</a>.<br>
+     <button id="export">Exporter</button><button id="import">Importer</button><button id="reset">Réinitialiser</button></footer>`;
+  $("#jump").innerHTML = jump;
+}
+
+function card(it) {
+  const t = TYPES[it.type], found = !!state.found[it.id];
+  return `<article class="card ${found ? "found" : ""} ${openCards.has(it.id) ? "open" : ""}" id="it-${it.id}" data-id="${it.id}">
+    <div class="head" data-toggle="${it.id}">
+      <div class="check">✓</div>
+      <div class="title"><div class="name">${esc(it.name)}</div><div class="meta">#${it.n} · Checkpoint ${esc(it.checkpoint)}</div></div>
+      <span class="badge" style="color:${t.color}">${t.short}</span>
+    </div>
+    <div class="body">
+      <div class="obj">Objectif : ${esc(it.objective)}</div>
+      <p class="note">${esc(it.note)}</p>
+      <div class="imgs">${it.imgs.map((src, i) => `<img loading="lazy" src="${src}" data-id="${it.id}" data-i="${i}" alt="${esc(it.name)} ${i + 1}">`).join("")}</div>
+    </div></article>`;
+}
+
+document.addEventListener("click", (e) => {
+  const tgl = e.target.closest("[data-toggle]");
+  if (tgl) {
+    const id = tgl.dataset.toggle, cardEl = tgl.closest(".card");
+    // Sur un objet déjà trouvé, un tap sur le nom déplie les infos ; la case décoche.
+    if (state.found[id] && !e.target.closest(".check")) {
+      openCards.has(id) ? openCards.delete(id) : openCards.add(id);
+      cardEl.classList.toggle("open");
+      return;
+    }
+    if (state.found[id]) delete state.found[id]; else { state.found[id] = Date.now(); openCards.delete(id); }
+    save(); render(); return;
+  }
+  const typ = e.target.closest("[data-type]");
+  if (typ) {
+    const k = typ.dataset.type;
+    state.types = state.types.includes(k) ? state.types.filter((x) => x !== k) : [...state.types, k];
+    save(); render(); return;
+  }
+  const h2 = e.target.closest("h2[data-ch]");
+  if (h2) { const ch = h2.dataset.ch; state.collapsed[ch] = !state.collapsed[ch]; save(); render(); return; }
+  const img = e.target.closest(".imgs img");
+  if (img) return openLightbox(img.dataset.id, +img.dataset.i);
+  if (e.target.id === "hide") { state.hide = !state.hide; save(); render(); }
+  if (e.target.id === "next") goNext();
+  if (e.target.id === "reset" && confirm("Tout décocher ?")) { state.found = {}; save(); render(); }
+  if (e.target.id === "export") {
+    const txt = JSON.stringify(state.found);
+    navigator.clipboard?.writeText(txt).then(() => alert("Progression copiée dans le presse-papiers."), () => prompt("Copiez ce texte :", txt));
+  }
+  if (e.target.id === "import") {
+    const txt = prompt("Collez la progression exportée :");
+    if (txt) try { state.found = JSON.parse(txt); save(); render(); } catch { alert("Texte invalide."); }
+  }
+});
+
+$("#jump").addEventListener("change", (e) => {
+  const ch = e.target.value; if (!ch) return;
+  if (state.collapsed[ch]) { state.collapsed[ch] = false; save(); render(); }
+  $("#ch-" + ch)?.scrollIntoView({ behavior: "smooth" });
+  e.target.value = "";
+});
+
+function goNext() {
+  const it = ITEMS.find((it) => state.types.includes(it.type) && !state.found[it.id]);
+  if (!it) return alert("Tous les collectibles sont trouvés ! 🍸");
+  if (state.collapsed[it.ch]) { state.collapsed[it.ch] = false; save(); render(); }
+  const el = document.getElementById("it-" + it.id);
+  el.scrollIntoView({ behavior: "smooth" });
+  el.animate([{ outline: "2px solid #dabc7d" }, { outline: "2px solid transparent" }], { duration: 1500 });
+}
+
+// Visionneuse plein écran
+const lb = $("#lb"); let lbItem = null, lbIdx = 0;
+function openLightbox(id, i) { lbItem = ITEMS.find((it) => it.id === id); lbIdx = i; showLb(); lb.classList.add("show"); }
+function showLb() {
+  lb.querySelector("img").src = lbItem.imgs[lbIdx];
+  lb.querySelector(".lbinfo").textContent = `${lbItem.name} — ${lbIdx + 1}/${lbItem.imgs.length}`;
+}
+const step = (d) => { lbIdx = (lbIdx + d + lbItem.imgs.length) % lbItem.imgs.length; showLb(); };
+lb.querySelector(".prev").onclick = () => step(-1);
+lb.querySelector(".next").onclick = () => step(1);
+lb.querySelector(".close").onclick = () => lb.classList.remove("show");
+lb.addEventListener("click", (e) => { if (e.target === lb) lb.classList.remove("show"); });
+let tx = null;
+lb.addEventListener("touchstart", (e) => { tx = e.touches[0].clientX; }, { passive: true });
+lb.addEventListener("touchend", (e) => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1); tx = null; });
+document.addEventListener("keydown", (e) => {
+  if (!lb.classList.contains("show")) return;
+  if (e.key === "Escape") lb.classList.remove("show");
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+
+render();
+</script>
+</body>
+</html>
