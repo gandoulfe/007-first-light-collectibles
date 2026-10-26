@@ -191,14 +191,14 @@ document.addEventListener("click", (e) => {
 $("#jump").addEventListener("change", (e) => {
   const ch = e.target.value; if (!ch) return;
   if (state.collapsed[ch]) { state.collapsed[ch] = false; save(); render(); }
-  $("#ch-" + ch)?.scrollIntoView({ behavior: "smooth" });
+  $("#ch-" + ch)?.scrollIntoView();
   e.target.value = "";
 });
 
-function scrollToItem(it, smooth = true) {
+function scrollToItem(it) {
   if (state.collapsed[it.ch]) { state.collapsed[it.ch] = false; save(); render(); }
   const el = document.getElementById("it-" + it.id);
-  el.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+  el.scrollIntoView();
   el.animate([{ outline: "2px solid #dabc7d" }, { outline: "2px solid transparent" }], { duration: 1500 });
 }
 
@@ -214,10 +214,10 @@ function hereItem() {
   const last = ITEMS.reduce((m, it) => (state.found[it.id] ? it.n : m), 0);
   return ITEMS.find((it) => it.n > last && state.types.includes(it.type) && !state.found[it.id]);
 }
-function goHere(smooth = true) {
+function goHere(silent = false) {
   const it = hereItem();
-  if (!it) return smooth && alert("Vous êtes au bout de la liste ! Utilisez « 1er manquant » pour les oublis.");
-  scrollToItem(it, smooth);
+  if (!it) return silent || alert("Vous êtes au bout de la liste ! Utilisez « 1er manquant » pour les oublis.");
+  scrollToItem(it);
 }
 
 // Visionneuse plein écran
@@ -244,7 +244,7 @@ document.addEventListener("keydown", (e) => {
 
 render();
 // À l'ouverture, reprendre directement là où on en était.
-if (Object.keys(state.found).length) goHere(false);
+if (Object.keys(state.found).length) goHere(true);
 </script>
 </body>
 </html>
