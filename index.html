@@ -30,12 +30,12 @@
   .chip small { color: var(--muted); font-variant-numeric: tabular-nums; }
   select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 16px; padding: 5px 8px; font-size: 13px; max-width: 100%; }
   main { padding: 8px 16px 120px; max-width: 760px; margin: 0 auto; }
-  .chapter { margin-top: 18px; }
-  .chapter h2 { font-size: 15px; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--gold); scroll-margin-top: 130px; cursor: pointer; }
+  .chapter { margin-top: 10px; scroll-margin-top: var(--hh, 150px); }
+  .chapter h2 { position: sticky; top: var(--hh, 150px); z-index: 5; background: var(--bg); font-size: 15px; margin: 0 -16px 8px; padding: 8px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--gold); cursor: pointer; }
   .chapter h2 span.p { color: var(--muted); font-weight: 400; font-size: 13px; white-space: nowrap; }
   .chapter.done h2 span.p { color: var(--ok); }
   .chapter.collapsed .items { display: none; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: hidden; scroll-margin-top: 140px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; overflow: hidden; scroll-margin-top: calc(var(--hh, 150px) + 50px); }
   .card.found { opacity: .5; }
   .head { display: flex; gap: 12px; align-items: center; padding: 10px 12px; cursor: pointer; }
   .check { flex: none; width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--muted); display: grid; place-items: center; font-size: 17px; color: transparent; }
@@ -242,6 +242,10 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "ArrowRight") step(1);
 });
 
+// Les titres de chapitre collent juste sous l'en-tête, dont la hauteur varie selon la largeur.
+const setHeaderHeight = () => document.documentElement.style.setProperty("--hh", $("header").offsetHeight + "px");
+new ResizeObserver(setHeaderHeight).observe($("header"));
+setHeaderHeight();
 render();
 // À l'ouverture, reprendre directement là où on en était.
 if (Object.keys(state.found).length) goHere(true);
