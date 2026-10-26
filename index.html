@@ -250,7 +250,8 @@ new ResizeObserver(setHeaderHeight).observe($("header"));
 setHeaderHeight();
 render();
 // À l'ouverture, reprendre directement là où on en était.
-if (Object.keys(state.found).length) requestAnimationFrame(() => goHere(true));
+history.scrollRestoration = "manual";
+if (Object.keys(state.found).length) setTimeout(() => goHere(true), 0);
 </script>
 </body>
 </html>
