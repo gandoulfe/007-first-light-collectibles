@@ -53,8 +53,9 @@
   .card.found .body { display: none; }
   .card.found.open .body { display: block; }
   .empty { color: var(--muted); text-align: center; padding: 40px 0; }
-  .fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--gold); color: #111; border: 0; border-radius: 24px; padding: 12px 16px; font-weight: 700; box-shadow: 0 4px 16px rgba(0,0,0,.5); font-size: 14px; }
-  footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 30px; }
+  .fabs { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); display: flex; gap: 8px; align-items: center; }
+  .fab { background: var(--gold); color: #111; border: 0; border-radius: 24px; padding: 12px 16px; font-weight: 700; box-shadow: 0 4px 16px rgba(0,0,0,.5); font-size: 14px; }
+  .fab.alt { background: var(--panel2); color: var(--text); border: 1px solid var(--line); padding: 10px 12px; font-size: 13px; font-weight: 600; }  footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 30px; }
   footer a { color: var(--gold); }
   footer button { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 8px; padding: 6px 10px; margin: 8px 4px 0; }
   #lb { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 50; display: none; flex-direction: column; justify-content: center; align-items: center; }
@@ -80,7 +81,10 @@
   </div>
 </header>
 <main id="list"></main>
-<button class="fab" id="next">Prochain ↓</button>
+<div class="fabs">
+  <button class="fab alt" id="next" title="Premier objet non coché depuis le début">1er manquant</button>
+  <button class="fab" id="here" title="Objet qui suit le plus avancé que vous avez coché">📍 Où j'en suis</button>
+</div>
 <div id="lb" role="dialog" aria-modal="true">
   <button class="close" aria-label="Fermer">✕</button>
   <button class="nav prev" aria-label="Précédente">‹</button>
@@ -172,6 +176,7 @@ document.addEventListener("click", (e) => {
   if (img) return openLightbox(img.dataset.id, +img.dataset.i);
   if (e.target.id === "hide") { state.hide = !state.hide; save(); render(); }
   if (e.target.id === "next") goNext();
+  if (e.target.id === "here") goHere();
   if (e.target.id === "reset" && confirm("Tout décocher ?")) { state.found = {}; save(); render(); }
   if (e.target.id === "export") {
     const txt = JSON.stringify(state.found);
@@ -190,13 +195,29 @@ $("#jump").addEventListener("change", (e) => {
   e.target.value = "";
 });
 
+function scrollToItem(it, smooth = true) {
+  if (state.collapsed[it.ch]) { state.collapsed[it.ch] = false; save(); render(); }
+  const el = document.getElementById("it-" + it.id);
+  el.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+  el.animate([{ outline: "2px solid #dabc7d" }, { outline: "2px solid transparent" }], { duration: 1500 });
+}
+
 function goNext() {
   const it = ITEMS.find((it) => state.types.includes(it.type) && !state.found[it.id]);
   if (!it) return alert("Tous les collectibles sont trouvés ! 🍸");
-  if (state.collapsed[it.ch]) { state.collapsed[it.ch] = false; save(); render(); }
-  const el = document.getElementById("it-" + it.id);
-  el.scrollIntoView({ behavior: "smooth" });
-  el.animate([{ outline: "2px solid #dabc7d" }, { outline: "2px solid transparent" }], { duration: 1500 });
+  scrollToItem(it);
+}
+
+// Position dans l'aventure = objet coché le plus avancé dans l'ordre du jeu ;
+// on se place sur le premier non coché qui le suit.
+function hereItem() {
+  const last = ITEMS.reduce((m, it) => (state.found[it.id] ? it.n : m), 0);
+  return ITEMS.find((it) => it.n > last && state.types.includes(it.type) && !state.found[it.id]);
+}
+function goHere(smooth = true) {
+  const it = hereItem();
+  if (!it) return smooth && alert("Vous êtes au bout de la liste ! Utilisez « 1er manquant » pour les oublis.");
+  scrollToItem(it, smooth);
 }
 
 // Visionneuse plein écran
@@ -222,6 +243,8 @@ document.addEventListener("keydown", (e) => {
 });
 
 render();
+// À l'ouverture, reprendre directement là où on en était.
+if (Object.keys(state.found).length) goHere(false);
 </script>
 </body>
 </html>
