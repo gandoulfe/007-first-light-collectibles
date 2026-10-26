@@ -28,6 +28,7 @@
   .chip.off { opacity: .4; }
   .chip.on { border-color: var(--gold); color: var(--gold); }
   .chip small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  #jump { flex: 1; min-width: 0; }
   select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 16px; padding: 5px 8px; font-size: 13px; max-width: 100%; }
   main { padding: 8px 16px 120px; max-width: 760px; margin: 0 auto; }
   .chapter { margin-top: 10px; scroll-margin-top: var(--hh, 150px); }
@@ -196,6 +197,7 @@ $("#jump").addEventListener("change", (e) => {
 });
 
 function scrollToItem(it) {
+  setHeaderHeight();
   if (state.collapsed[it.ch]) { state.collapsed[it.ch] = false; save(); render(); }
   const el = document.getElementById("it-" + it.id);
   el.scrollIntoView();
@@ -248,7 +250,7 @@ new ResizeObserver(setHeaderHeight).observe($("header"));
 setHeaderHeight();
 render();
 // À l'ouverture, reprendre directement là où on en était.
-if (Object.keys(state.found).length) goHere(true);
+if (Object.keys(state.found).length) requestAnimationFrame(() => goHere(true));
 </script>
 </body>
 </html>
